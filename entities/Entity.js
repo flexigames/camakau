@@ -6,27 +6,31 @@ export default class Entity {
   constructor(x, y, opts = {}) {
     const {
       tags = [],
-      sprite,
-      animationSpeed = 0,
-      spriteAnchor = [0.5, 1],
     } = opts
 
     this.pos = V(x, y)
 
+    this.container = new PIXI.Container(x, y)
+    this.container.x = x
+    this.container.y = y
+    this.container.zIndex = y
+
+    this.components = []
+
     this.tags = tags
-    this.addTag(sprite)
-    this.sprite = Entity.createSprite(
-      x,
-      y,
-      sprite,
-      animationSpeed,
-      spriteAnchor
-    )
 
     Entity.create(this)
   }
 
-  update(dt) {}
+  update(dt) {
+    this.components.forEach(component => component.update?.())
+  }
+
+  addComponent(component) {
+    component.parent = this
+    this.components.push(component)
+    if (component.container) this.container.addChild(component.container)
+  }
 
   setPosition(x, y) {
     if (!y) {
@@ -36,11 +40,9 @@ export default class Entity {
     this.pos.x = x
     this.pos.y = y
 
-    if (this.sprite) {
-      this.sprite.x = x
-      this.sprite.y = y
-      this.sprite.zIndex = y
-    }
+    this.container.x = x
+    this.container.y = y
+    this.container.zIndex = y
   }
 
   destroy() {
@@ -55,17 +57,6 @@ export default class Entity {
     Entity.world.addChild(object)
   }
 
-  changeTexture(textureName, sprite) {
-    sprite = sprite || this.sprite
-    const texture = Entity.textures[textureName]
-    if (isArray(texture)) {
-      this.sprite.textures = texture
-      this.sprite.play()
-    } else {
-      this.sprite.texture = texture
-    }
-  }
-
   addTag (tag) {
     this.tags.push(tag)
   }
@@ -76,15 +67,14 @@ export default class Entity {
 
   static textures
 
-  static init(world, textures) {
+  static init(world) {
     Entity.world = world
-    Entity.textures = textures
   }
 
   static create(entity) {
     Entity.children.push(entity)
 
-    Entity.world.addChild(entity.sprite)
+    Entity.world.addChild(entity.container)
   }
 
   static destroy(entity) {
@@ -92,7 +82,7 @@ export default class Entity {
     if (entityPos === -1) return
     Entity.children.splice(entityPos, 1)
 
-    Entity.world.removeChild(entity.sprite)
+    Entity.world.removeChild(entity.container)
   }
 
   static updateAll(dt) {
@@ -101,26 +91,6 @@ export default class Entity {
 
   static clear() {
     Entity.children = []
-  }
-
-  static createSprite(x, y, textureName, animationSpeed = 0, spriteAnchor = [0.5, 1]) {
-    let sprite
-    const texture = Entity.textures[textureName]
-    if (isArray(texture)) {
-      sprite = new PIXI.AnimatedSprite(texture)
-      sprite.play()
-      sprite.animationSpeed = animationSpeed
-    } else {
-      sprite = new PIXI.Sprite(texture)
-    }
-
-    sprite.x = x
-    sprite.y = y
-    sprite.zIndex = y
-
-    sprite.anchor.set(spriteAnchor[0], spriteAnchor[1])
-
-    return sprite
   }
 
   static find(tag) {

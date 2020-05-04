@@ -3,11 +3,13 @@ import WebFont from "webfontloader"
 import parseTextures from './lib/parse-textures'
 import Entity from './entities/Entity'
 import Game from './lib/Game'
+import Sprite from "./components/Sprite"
 
 const SPRITESHEET = 'spritesheet.json'
 
 const width = 166
 const height = 144
+
 
 function start() {
     const app = createApp()
@@ -15,12 +17,15 @@ function start() {
 
     function setup(loader, resources) {
         const textures = parseTextures(resources[SPRITESHEET].textures)
+        Sprite.textures = textures
 
         app.stage.sortableChildren = true
 
         app.ticker.add(gameLoop)
 
-        Entity.init(app.stage, textures)
+        window.stage = app.stage
+
+        Entity.init(app.stage)
 
         const game = new Game({ stage: app.stage, width, height })
 
