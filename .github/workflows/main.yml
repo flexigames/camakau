@@ -24,6 +24,6 @@ jobs:
       env:
             BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
             CHANNEL: web
-            ITCH_GAME: <game>
+            ITCH_GAME: camakau
             ITCH_USER: lexenson
             PACKAGE: dist
