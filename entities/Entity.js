@@ -23,11 +23,12 @@ export default class Entity {
   }
 
   update(dt) {
-    this.components.forEach(component => component.update?.())
+    this.components.forEach(component => component.update?.(dt))
   }
 
   addComponent(component) {
     component.parent = this
+    component.game = Entity.game
     this.components.push(component)
     if (component.container) this.container.addChild(component.container)
   }

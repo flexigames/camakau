@@ -10,7 +10,6 @@ const SPRITESHEET = 'spritesheet.json'
 const width = 166
 const height = 144
 
-
 function start() {
     const app = createApp()
     app.loader.add(SPRITESHEET).load(setup)
@@ -26,6 +25,7 @@ function start() {
         window.stage = app.stage
 
         Entity.init(app.stage)
+        Entity.game = game
 
         const game = new Game({ stage: app.stage, width, height })
 
